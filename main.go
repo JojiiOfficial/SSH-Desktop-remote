@@ -127,7 +127,8 @@ var child = &cli.Command{
 		if err != nil {
 			fmt.Errorf("Unable to setup stdout for session: %v", err)
 		}
-		go io.Copy(os.Stdout, stdout)
+		_ = stdout
+		//go io.Copy(os.Stdout, stdout)
 		stdin, err := session.StdinPipe()
 
 		if err != nil {
@@ -138,6 +139,11 @@ var child = &cli.Command{
 			fmt.Errorf("Unable to setup stdout for session: %v", err)
 		}
 		stdin.Write([]byte("export DISPLAY=:0\n"))
+		fmt.Println("\nSuccessfully connected")
+		fmt.Println("Available:\n  Keyboard")
+		if argt.Mouse {
+			fmt.Println("  Mouse")
+		}
 
 		e = &Enabled{enabled: true}
 
@@ -149,10 +155,8 @@ var child = &cli.Command{
 						os.Exit(0)
 					}
 					if key != 0 {
-						fmt.Println(key)
 						writeLetter(stdin, int(key))
 					} else {
-						fmt.Println(char)
 						writeLetter(stdin, int(char))
 					}
 				} else {
