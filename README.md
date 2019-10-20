@@ -5,10 +5,15 @@ It uses robotgo and [eiannone/keyboard](https://github.com/eiannone/keyboard) as
 # Installation/Requirements
 This tool uses [robotgo](https://github.com/go-vgo/robotgo) so you need to install the same tools/packages which are required by robotgo
 [https://github.com/go-vgo/robotgo#requirements]
-If these are installed successfully you can compile it with 
+If these are installed successfully you can compile it with:
 ```
 go get
 go build -o remoteSSH
+```
+
+In addition you need to install xdotool on the remote machine:
+```
+apt install xdotool -y
 ```
 
 # Usage
