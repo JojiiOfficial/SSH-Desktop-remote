@@ -4,7 +4,7 @@ It uses robotgo and [eiannone/keyboard](https://github.com/eiannone/keyboard) as
 
 # Installation/Requirements
 This tool uses [robotgo](https://github.com/go-vgo/robotgo) so you need to install the same tools/packages which are required by robotgo
-[https://github.com/go-vgo/robotgo#requirements]
+(https://github.com/go-vgo/robotgo#requirements)
 If these are installed successfully you can compile it with:
 ```
 go get
