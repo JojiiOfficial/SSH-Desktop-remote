@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
 	"os/user"
@@ -91,7 +92,31 @@ var child = &cli.Command{
 			host += ":" + strconv.Itoa(argt.Port)
 		}
 
-		sshauth := sshagent()
+		var sshauth ssh.AuthMethod
+		if len(argt.KeyFile) > 0 {
+			if _, err := os.Stat(argt.KeyFile); err == nil {
+				buffer, err := ioutil.ReadFile(argt.KeyFile)
+				if err != nil {
+					fmt.Println("Couldn't read keyfile!")
+					os.Exit(1)
+					return nil
+				}
+				key, err := ssh.ParsePrivateKey(buffer)
+				if err != nil {
+					fmt.Println("Couldn't read keyfile!")
+					os.Exit(1)
+					return nil
+				}
+				sshauth = ssh.PublicKeys(key)
+			} else {
+				fmt.Println("File does not exists!")
+				os.Exit(1)
+				return nil
+			}
+		} else {
+			sshauth = sshagent()
+		}
+
 		var connection *ssh.Client
 		var err error
 		for i := 0; ; {
