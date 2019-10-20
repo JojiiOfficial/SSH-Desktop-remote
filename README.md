@@ -1,5 +1,5 @@
 # SSH-Desktop-remote
-This is a small but effective tool to control a linux desktop via ssh and xdotool written in go.
+This is a small but effective tool to control the keyboard and mouse of a linux desktop environment via ssh and xdotool written.
 It uses robotgo and [eiannone/keyboard](https://github.com/eiannone/keyboard) as client libraries for the input and translates it into xdotool commands on a remote machine. This allows you to 'mirror' your mouse and keyboard.
 
 # Installation/Requirements
