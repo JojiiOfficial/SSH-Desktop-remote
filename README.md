@@ -30,4 +30,4 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
 - Mouse
   - [x] mouse movement
   - [x] Simple mouse leftclick
-  - [ ] full mousebutton support (left-,rightmousebutton)
+  - [ ] full mousebutton support (left- ,rightmousebutton, scrolling, ect)
