@@ -18,7 +18,9 @@ apt install xdotool -y
 
 # Usage
 ```
-./remoteSSH <host> <username> <mouse/nomouse>
+./remoteSSH -r user@host                    # opens keyboard remote only
+./remoteSSH -r user@host -m                 # opens mouse and keyboard remote
+./remoteSSH -r user@host -m -i key -p 123   # opens remote with ssh privatekey auth on port 123
 ```
 By default the mouse option is turned off. If mouse is turned on, you can toggle it afterwards with the '\`' key.
 <br>If the port is not 22 you can add ':port' to the hostname-argument
