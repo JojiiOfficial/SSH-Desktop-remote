@@ -138,16 +138,12 @@ func main() {
 }
 
 func remoteMouseButton(stdin io.WriteCloser, button int) {
-	cmd := "xdotool mousedown " + strconv.Itoa(button) + ";" +
-		"sleep 0.2" + ";" +
-		"xdotool mouseup " + strconv.Itoa(button) + "\n"
-	fmt.Print(cmd)
+	cmd := "xdotool click " + strconv.Itoa(button) + "\n"
 	stdin.Write([]byte(cmd))
 }
 
 func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
 	cmd := "xdotool mousemove_relative -- " + strconv.Itoa(dx) + " " + strconv.Itoa(dy) + "\n"
-	//fmt.Print(cmd)
 	stdin.Write([]byte(cmd))
 }
 
@@ -157,34 +153,28 @@ func writeLetter(stdin io.WriteCloser, letter int) {
 
 func convertToCommandCode(keycode int) string {
 	switch keycode {
-	case 32:
-		return "space"
+	case 8:
+		return "Control_L+BackSpace"
+	case 9:
+		return "Tab"
 	case 13:
 		return "Return"
-	case 127:
-		return "BackSpace"
-	case 65522:
-		return "Delete"
-	case 65515:
-		return "Left"
-	case 65514:
-		return "Right"
-	case 65517:
-		return "Up"
-	case 65516:
-		return "Down"
-	case 96:
-		return "grave"
+	case 32:
+		return "space"
+	case 33:
+		return "exclam"
 	case 34:
 		return "quotedbl"
-	case 39:
-		return "apostrophe"
+	case 35:
+		return "numbersign"
 	case 36:
 		return "dollar"
 	case 37:
 		return "percent"
 	case 38:
 		return "ampersand"
+	case 39:
+		return "apostrophe"
 	case 40:
 		return "parenleft"
 	case 41:
@@ -201,6 +191,8 @@ func convertToCommandCode(keycode int) string {
 		return "equal"
 	case 63:
 		return "question"
+	case 64:
+		return "at"
 	case 94:
 		return "asciicircum"
 	case 91:
@@ -211,22 +203,26 @@ func convertToCommandCode(keycode int) string {
 		return "bracketright"
 	case 95:
 		return "underscore"
+	case 96:
+		return "grave"
 	case 123:
 		return "braceleft"
 	case 124:
 		return "bar"
 	case 125:
 		return "braceright"
-	case 8:
-		return "Control_L+BackSpace"
-	case 9:
-		return "Tab"
-	case 64:
-		return "at"
-	case 35:
-		return "numbersign"
-	case 33:
-		return "exclam"
+	case 127:
+		return "BackSpace"
+	case 65514:
+		return "Right"
+	case 65515:
+		return "Left"
+	case 65516:
+		return "Down"
+	case 65517:
+		return "Up"
+	case 65522:
+		return "Delete"
 	}
 	return string(keycode)
 }
