@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"os/user"
 	"strconv"
 	"strings"
 	"sync"
@@ -13,9 +14,20 @@ import (
 
 	"github.com/eiannone/keyboard"
 	"github.com/go-vgo/robotgo"
+	"github.com/mkideal/cli"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+type argT struct {
+	cli.Helper
+	Host string `cli:"*r,host" usage:"SSH host or username@host"`
+	User string `cli:"l,user" usage:"SSH user"`
+	Port int    `cli:"p,port" usage:"SSH remote port"`
+	//KeyFile string `cli:"i,identity" usage:"SSH identity file"`
+	Mouse bool `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
+}
 
 //Enabled a struct
 type Enabled struct {
@@ -25,116 +37,155 @@ type Enabled struct {
 
 var e *Enabled
 
-var mouse = false
-var host, user, pass string
+var help = cli.HelpCommand("display help information")
 
 func main() {
-	args := os.Args
-	if len(args) < 3 {
-		fmt.Println("Usage: " + args[0] + " <host:port> <username> <mouse/nomouse>")
-		return
+	if err := cli.Root(child,
+		cli.Tree(help),
+	).Run(os.Args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
+}
 
-	host = args[1]
-
-	if !strings.Contains(host, ":") {
-		host += ":22"
+func sshagent() ssh.AuthMethod {
+	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
+		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
 	}
+	return nil
+}
 
-	user = args[2]
+var child = &cli.Command{
+	Name: "remote",
+	Argv: func() interface{} { return new(argT) },
+	Fn: func(ctx *cli.Context) error {
+		argv := ctx.Argv()
+		argt := argv.(*argT)
+		usern := argt.User
+		host := argt.Host
 
-	fmt.Print(user + "'s password: ")
-	bpas, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		panic(err)
-	}
-	pass := string(bpas)
-	sshConfig := &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(pass),
-		},
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
-		},
-	}
-	connection, err := ssh.Dial("tcp", host, sshConfig)
-	if err != nil {
-		panic(err)
-	}
-
-	defer connection.Close()
-
-	session, err := connection.NewSession()
-	if err != nil {
-		panic(err)
-	}
-	stdout, err := session.StdoutPipe()
-	if err != nil {
-		fmt.Errorf("Unable to setup stdout for session: %v", err)
-	}
-	go io.Copy(os.Stdout, stdout)
-	stdin, err := session.StdinPipe()
-
-	if err != nil {
-		fmt.Errorf("Unable to setup stdout for session: %v", err)
-	}
-	err = session.Shell()
-	if err != nil {
-		fmt.Errorf("Unable to setup stdout for session: %v", err)
-	}
-	stdin.Write([]byte("export DISPLAY=:0\n"))
-
-	e = &Enabled{enabled: true}
-
-	go (func() {
-		for {
-			char, key, err := keyboard.GetSingleKey()
-			if err == nil {
-				if key == 3 {
-					os.Exit(0)
-				}
-				if key != 0 {
-					fmt.Println(key)
-					writeLetter(stdin, int(key))
-				} else {
-					fmt.Println(char)
-					writeLetter(stdin, int(char))
-				}
-			} else {
+		if len(usern) == 0 && !strings.Contains(host, "@") {
+			user, err := user.Current()
+			if err != nil {
 				panic(err)
 			}
+			if user != nil && len(user.Username) > 0 {
+				usern = user.Username
+			} else {
+				fmt.Println("Error getting user. Try adding the user manually: -l or --user")
+				os.Exit(1)
+				return nil
+			}
+		} else if strings.Contains(host, "@") {
+			data := strings.Split(host, "@")
+			usern = data[0]
+			host = data[1]
 		}
-	})()
 
-	if len(args) > 3 {
-		mouse = args[3] == "mouse"
-	}
+		if argt.Port == 0 && !strings.Contains(host, ":") {
+			host += ":22"
+		} else if strings.Contains(host, ":") && argt.Port != 0 {
+			d := strings.Split(host, ":")[1]
+			fmt.Println("Warning! Using port '" + d + "' instead of '" + strconv.Itoa(argt.Port) + "'")
+		} else if argt.Port != 0 {
+			host += ":" + strconv.Itoa(argt.Port)
+		}
 
-	if mouse {
-		lx, ly := robotgo.GetMousePos()
+		var sshauth ssh.AuthMethod
+
+		fmt.Print(usern + "'s password: ")
+		bpas, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			panic(err)
+		}
+		pass := string(bpas)
+		sshauth = ssh.Password(pass)
+
+		sshConfig := &ssh.ClientConfig{
+			User: usern,
+			Auth: []ssh.AuthMethod{
+				sshagent(),
+				sshauth,
+			},
+			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+				return nil
+			},
+		}
+
+		connection, err := ssh.Dial("tcp", host, sshConfig)
+		if err != nil {
+			panic(err)
+		}
+
+		defer connection.Close()
+
+		session, err := connection.NewSession()
+		if err != nil {
+			panic(err)
+		}
+		stdout, err := session.StdoutPipe()
+		if err != nil {
+			fmt.Errorf("Unable to setup stdout for session: %v", err)
+		}
+		go io.Copy(os.Stdout, stdout)
+		stdin, err := session.StdinPipe()
+
+		if err != nil {
+			fmt.Errorf("Unable to setup stdout for session: %v", err)
+		}
+		err = session.Shell()
+		if err != nil {
+			fmt.Errorf("Unable to setup stdout for session: %v", err)
+		}
+		stdin.Write([]byte("export DISPLAY=:0\n"))
+
+		e = &Enabled{enabled: true}
+
 		go (func() {
 			for {
-				nx, ny := robotgo.GetMousePos()
-				dx := lx - nx
-				dy := ly - ny
-				if dy != 0 && dx != 0 {
-					if e.enabled {
-						moveRemoteMouse(stdin, dx*-1, dy*-1)
+				char, key, err := keyboard.GetSingleKey()
+				if err == nil {
+					if key == 3 {
+						os.Exit(0)
 					}
+					if key != 0 {
+						fmt.Println(key)
+						writeLetter(stdin, int(key))
+					} else {
+						fmt.Println(char)
+						writeLetter(stdin, int(char))
+					}
+				} else {
+					panic(err)
 				}
-				lx, ly = nx, ny
-				time.Sleep(5 * time.Millisecond)
 			}
 		})()
-	}
 
-	for {
-		lmb := robotgo.AddEvent("mleft")
-		if lmb {
-			remoteMouseButton(stdin, 1)
+		if argt.Mouse {
+			lx, ly := robotgo.GetMousePos()
+			go (func() {
+				for {
+					nx, ny := robotgo.GetMousePos()
+					dx := lx - nx
+					dy := ly - ny
+					if dy != 0 && dx != 0 {
+						if e.enabled {
+							moveRemoteMouse(stdin, dx*-1, dy*-1)
+						}
+					}
+					lx, ly = nx, ny
+					time.Sleep(5 * time.Millisecond)
+				}
+			})()
 		}
-	}
+
+		for {
+			lmb := robotgo.AddEvent("mleft")
+			if lmb {
+				remoteMouseButton(stdin, 1)
+			}
+		}
+	},
 }
 
 func remoteMouseButton(stdin io.WriteCloser, button int) {

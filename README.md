@@ -26,13 +26,13 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
 # Features
 - SSH
   - [x] SSH password auth
-  - [ ] privatekey auth
+  - [ ] Privatekey auth
   - [ ] SSHAgent login
   - [ ] Knownhost check/handling
 - Keyboard
   - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
   - [ ] Key combinations (eg. Crtl+a)
 - Mouse
-  - [x] mouse movement
+  - [x] Mouse movement
   - [x] Simple mouse leftclick
-  - [ ] full mousebutton support (left- ,rightmousebutton, scrolling, ect)
+  - [ ] Full mousebutton support (left- ,rightmousebutton, scrolling, ect)
