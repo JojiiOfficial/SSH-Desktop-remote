@@ -91,30 +91,45 @@ var child = &cli.Command{
 			host += ":" + strconv.Itoa(argt.Port)
 		}
 
-		var sshauth ssh.AuthMethod
-
-		fmt.Print(usern + "'s password: ")
-		bpas, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			panic(err)
-		}
-		pass := string(bpas)
-		sshauth = ssh.Password(pass)
-
-		sshConfig := &ssh.ClientConfig{
-			User: usern,
-			Auth: []ssh.AuthMethod{
-				sshagent(),
-				sshauth,
-			},
-			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+		sshauth := sshagent()
+		var connection *ssh.Client
+		var err error
+		for i := 0; ; {
+			if i >= 4 {
+				fmt.Println("\nToo many attempts!")
 				return nil
-			},
-		}
+			}
+			if sshauth == nil {
+				if i > 1 {
+					fmt.Print("\n" + usern + "'s password: ")
+				} else {
+					fmt.Print(usern + "'s password: ")
+				}
+				bpas, err := terminal.ReadPassword(int(syscall.Stdin))
+				if err != nil {
+					panic(err)
+				}
+				pass := string(bpas)
+				sshauth = ssh.Password(pass)
+			}
 
-		connection, err := ssh.Dial("tcp", host, sshConfig)
-		if err != nil {
-			panic(err)
+			connection, err = ssh.Dial("tcp", host, &ssh.ClientConfig{
+				User: usern,
+				Auth: []ssh.AuthMethod{
+					sshauth,
+				},
+				HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+					return nil
+				},
+			})
+
+			if err != nil {
+				sshauth = nil
+				i++
+				continue
+			} else {
+				break
+			}
 		}
 
 		defer connection.Close()
