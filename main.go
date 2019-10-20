@@ -130,8 +130,19 @@ func main() {
 	}
 
 	for {
-
+		lmb := robotgo.AddEvent("mleft")
+		if lmb {
+			remoteMouseButton(stdin, 1)
+		}
 	}
+}
+
+func remoteMouseButton(stdin io.WriteCloser, button int) {
+	cmd := "xdotool mousedown " + strconv.Itoa(button) + ";" +
+		"sleep 0.2" + ";" +
+		"xdotool mouseup " + strconv.Itoa(button) + "\n"
+	fmt.Print(cmd)
+	stdin.Write([]byte(cmd))
 }
 
 func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
