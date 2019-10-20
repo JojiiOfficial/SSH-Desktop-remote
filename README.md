@@ -8,7 +8,7 @@ This tool uses [robotgo](https://github.com/go-vgo/robotgo) so you need to insta
 If these are installed successfully you can compile it with 
 ```
 go get
-go build
+go build -o remoteSSH
 ```
 
 # Usage
