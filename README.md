@@ -26,7 +26,7 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
 # Features
 - Keyboard
   - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
-  - [ ] Key combinations
+  - [ ] Key combinations (eg. Crtl+a)
 - Mouse
   - [x] mouse movement
-  - [ ] mouse buttons
+  - [ ] mouse buttons (left-,rightmousebutton)
