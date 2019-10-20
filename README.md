@@ -1,17 +1,17 @@
 # SSH-Desktop-remote
-This is a small but effective tool to control the keyboard and mouse of a linux desktop environment via ssh and xdotool written.
-It uses robotgo and [eiannone/keyboard](https://github.com/eiannone/keyboard) as client libraries for the input and translates it into xdotool commands on a remote machine. This allows you to 'mirror' your mouse and keyboard.
+This is a small but effective tool to control the keyboard and mouse of a linux desktop environment via SSH.
+It uses [robotgo](https://github.com/go-vgo/robotgo) and [eiannone/keyboard](https://github.com/eiannone/keyboard) as client libraries for the input, translates this into xdotool commands and executes them on a remote machine. This allows you to 'mirror' your mouse and keyboard input.
 
 # Installation/Requirements
 This tool uses [robotgo](https://github.com/go-vgo/robotgo) so you need to install the same tools/packages which are required by robotgo
 (https://github.com/go-vgo/robotgo#requirements)
-If these are installed successfully you can compile it with:
+If these are installed successfully you can compile this tool with:
 ```
 go get
 go build -o remoteSSH
 ```
 
-In addition you need to install xdotool on the remote machine:
+In addition you need to install xdotool on the remote machine if it isn't already installed. 
 ```
 apt install xdotool -y
 ```
