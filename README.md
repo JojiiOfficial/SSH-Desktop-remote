@@ -22,3 +22,11 @@ apt install xdotool -y
 ```
 By default the mouse option is turned off. If mouse is turned on, you can toggle it afterwards with the '\`' key.
 <br>If the port is not 22 you can add ':port' to the hostname-argument
+
+# Features
+- Keyboard
+  - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
+  - [ ] Key combinations
+- Mouse
+  - [x] mouse movement
+  - [ ] mouse buttons
