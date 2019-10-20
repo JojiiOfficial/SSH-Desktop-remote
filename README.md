@@ -29,4 +29,5 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
   - [ ] Key combinations (eg. Crtl+a)
 - Mouse
   - [x] mouse movement
-  - [ ] mouse buttons (left-,rightmousebutton)
+  - [x] Simple mouse leftclick
+  - [ ] full mousebutton support (left-,rightmousebutton)
