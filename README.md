@@ -24,6 +24,11 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
 <br>If the port is not 22 you can add ':port' to the hostname-argument
 
 # Features
+- SSH
+  - [x] SSH password auth
+  - [ ] privatekey auth
+  - [ ] SSHAgent login
+  - [ ] Knownhost check/handling
 - Keyboard
   - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
   - [ ] Key combinations (eg. Crtl+a)
