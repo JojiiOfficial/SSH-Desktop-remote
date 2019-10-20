@@ -7,15 +7,23 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/eiannone/keyboard"
-	_ "github.com/eiannone/keyboard"
 	"github.com/go-vgo/robotgo"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+//Enabled a struct
+type Enabled struct {
+	mu      sync.Mutex
+	enabled bool
+}
+
+var e *Enabled
 
 var mouse = false
 var host, user, pass string
@@ -77,12 +85,14 @@ func main() {
 	}
 	stdin.Write([]byte("export DISPLAY=:0\n"))
 
+	e = &Enabled{enabled: true}
+
 	go (func() {
 		for {
 			char, key, err := keyboard.GetSingleKey()
 			if err == nil {
 				if key == 3 {
-					return
+					os.Exit(0)
 				}
 				if key != 0 {
 					fmt.Println(key)
@@ -103,34 +113,18 @@ func main() {
 
 	if mouse {
 		lx, ly := robotgo.GetMousePos()
-		enabled := true
 		go (func() {
 			for {
-				if !enabled {
-					continue
-				}
 				nx, ny := robotgo.GetMousePos()
 				dx := lx - nx
 				dy := ly - ny
 				if dy != 0 && dx != 0 {
-					fmt.Println("X: " + strconv.Itoa(dx) + " Y: " + strconv.Itoa(dy))
-					moveRemoteMouse(stdin, dx*-1, dy*-1)
-
+					if e.enabled {
+						moveRemoteMouse(stdin, dx*-1, dy*-1)
+					}
 				}
 				lx, ly = nx, ny
 				time.Sleep(5 * time.Millisecond)
-			}
-		})()
-
-		go (func() {
-			for {
-				keve := robotgo.AddEvent("`")
-				if keve {
-					enabled = !enabled
-					if enabled {
-						lx, ly = robotgo.GetMousePos()
-					}
-				}
 			}
 		})()
 	}
@@ -142,7 +136,7 @@ func main() {
 
 func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
 	cmd := "xdotool mousemove_relative -- " + strconv.Itoa(dx) + " " + strconv.Itoa(dy) + "\n"
-	fmt.Println(cmd)
+	//fmt.Print(cmd)
 	stdin.Write([]byte(cmd))
 }
 
@@ -168,8 +162,48 @@ func convertToCommandCode(keycode int) string {
 		return "Up"
 	case 65516:
 		return "Down"
+	case 96:
+		return "grave"
+	case 34:
+		return "quotedbl"
+	case 39:
+		return "apostrophe"
+	case 36:
+		return "dollar"
+	case 37:
+		return "percent"
+	case 38:
+		return "ampersand"
+	case 40:
+		return "parenleft"
+	case 41:
+		return "parenright"
+	case 42:
+		return "asterisk"
+	case 94:
+		return "asciicircum"
+	case 91:
+		return "bracketleft"
+	case 93:
+		return "bracketright"
+	case 123:
+		return "braceleft"
+	case 125:
+		return "braceright"
+	case 92:
+		return "backslash"
+	case 47:
+		return "slash"
 	case 8:
 		return "Control_L+BackSpace"
+	case 9:
+		return "Tab"
+	case 64:
+		return "at"
+	case 35:
+		return "numbersign"
+	case 33:
+		return "exclam"
 	}
 	return string(keycode)
 }
