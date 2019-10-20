@@ -180,20 +180,32 @@ func convertToCommandCode(keycode int) string {
 		return "parenright"
 	case 42:
 		return "asterisk"
+	case 43:
+		return "plus"
+	case 45:
+		return "minus"
+	case 47:
+		return "slash"
+	case 61:
+		return "equal"
+	case 63:
+		return "question"
 	case 94:
 		return "asciicircum"
 	case 91:
 		return "bracketleft"
-	case 93:
-		return "bracketright"
-	case 123:
-		return "braceleft"
-	case 125:
-		return "braceright"
 	case 92:
 		return "backslash"
-	case 47:
-		return "slash"
+	case 93:
+		return "bracketright"
+	case 95:
+		return "underscore"
+	case 123:
+		return "braceleft"
+	case 124:
+		return "bar"
+	case 125:
+		return "braceright"
 	case 8:
 		return "Control_L+BackSpace"
 	case 9:
