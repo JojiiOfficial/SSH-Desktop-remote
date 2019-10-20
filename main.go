@@ -278,10 +278,18 @@ func convertToCommandCode(keycode int) string {
 		return "asterisk"
 	case 43:
 		return "plus"
+	case 44:
+		return "comma"
 	case 45:
 		return "minus"
+	case 46:
+		return "period"
 	case 47:
 		return "slash"
+	case 58:
+		return "colon"
+	case 59:
+		return "semicolon"
 	case 61:
 		return "equal"
 	case 63:
