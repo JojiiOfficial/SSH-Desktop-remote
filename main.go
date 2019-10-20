@@ -22,11 +22,11 @@ import (
 
 type argT struct {
 	cli.Helper
-	Host string `cli:"*r,host" usage:"SSH host or username@host"`
-	User string `cli:"l,user" usage:"SSH user"`
-	Port int    `cli:"p,port" usage:"SSH remote port"`
-	//KeyFile string `cli:"i,identity" usage:"SSH identity file"`
-	Mouse bool `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
+	Host    string `cli:"*r,host" usage:"SSH host or username@host"`
+	User    string `cli:"l,user" usage:"SSH user"`
+	Port    int    `cli:"p,port" usage:"SSH remote port"`
+	KeyFile string `cli:"i,identity" usage:"SSH identity file"`
+	Mouse   bool   `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
 }
 
 //Enabled a struct
