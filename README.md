@@ -15,5 +15,5 @@ go build
 ```
 ./remoteSSH <host> <username> <mouse/nomouse>
 ```
-by default the mouse option is turned off. If mouse is turned on, you can toggle it afterwards with the '\`' key
-if the port is not 22 you can add ':port' to the hostname-argument
+By default the mouse option is turned off. If mouse is turned on, you can toggle it afterwards with the '\`' key.
+<br>If the port is not 22 you can add ':port' to the hostname-argument
