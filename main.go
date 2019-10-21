@@ -22,12 +22,13 @@ import (
 
 type argT struct {
 	cli.Helper
-	Host    string `cli:"*r,host" usage:"SSH host or username@host"`
-	User    string `cli:"l,user" usage:"SSH user"`
-	Port    int    `cli:"p,port" usage:"SSH remote port"`
-	KeyFile string `cli:"i,identity" usage:"SSH identity file"`
-	Mouse   bool   `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
-	Quiet   bool   `cli:"q,quiet" usage:"No output" dft:"false"`
+	Host        string `cli:"*r,host" usage:"SSH host or username@host"`
+	User        string `cli:"l,user" usage:"SSH user"`
+	Port        int    `cli:"p,port" usage:"SSH remote port"`
+	KeyFile     string `cli:"i,identity" usage:"SSH identity file"`
+	Mouse       bool   `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
+	Quiet       bool   `cli:"q,quiet" usage:"No output" dft:"false"`
+	MouseToggle bool   `cli:"t,mtggle" usage:"Toggle mouse mirroring with \u0060" dft:"true"`
 }
 
 //Enabled a struct
@@ -214,7 +215,9 @@ var child = &cli.Command{
 
 			startMouseListener(func(a, b, c int) {
 				if a > 0 {
-					remoteMouseButton(stdin, a, b)
+					if e.enabled {
+						remoteMouseButton(stdin, a, b)
+					}
 				} else {
 					nx, ny = b, c
 					dx := lx - nx
@@ -251,6 +254,10 @@ func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
 }
 
 func writeLetter(stdin io.WriteCloser, letter int) {
+	if letter == 96 {
+		e.enabled = !e.enabled
+		return
+	}
 	stdin.Write([]byte("xdotool key " + convertToCommandCode(letter) + "\n"))
 }
 
