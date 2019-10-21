@@ -225,7 +225,6 @@ var child = &cli.Command{
 					dx := lx - nx
 					dy := ly - ny
 					if (nx != lx || ny != ly) && e.enabled && (lc+argt.Sensitivity <= time.Now().UnixNano()) {
-						fmt.Println("X:", dx, "Y:", dy)
 						setMousePos(lx, ly)
 						moveRemoteMouse(stdin, dx*-1, dy*-1)
 						lc = time.Now().UnixNano()
