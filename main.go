@@ -195,6 +195,7 @@ var child = &cli.Command{
 						os.Exit(0)
 					}
 					if key != 0 {
+						fmt.Println(key)
 						writeLetter(stdin, int(key))
 					} else {
 						writeLetter(stdin, int(char))
