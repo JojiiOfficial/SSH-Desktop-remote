@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/eiannone/keyboard"
-	"github.com/go-vgo/robotgo"
 	"github.com/mkideal/cli"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -37,7 +36,7 @@ type Enabled struct {
 }
 
 var e *Enabled
-
+var stdin io.WriteCloser
 var help = cli.HelpCommand("display help information")
 
 func main() {
@@ -168,8 +167,7 @@ var child = &cli.Command{
 			fmt.Errorf("Unable to setup stdout for session: %v", err)
 		}
 		_ = stdout
-		//go io.Copy(os.Stdout, stdout)
-		stdin, err := session.StdinPipe()
+		stdin, err = session.StdinPipe()
 
 		if err != nil {
 			fmt.Errorf("Unable to setup stdout for session: %v", err)
@@ -195,7 +193,6 @@ var child = &cli.Command{
 						os.Exit(0)
 					}
 					if key != 0 {
-						fmt.Println(key)
 						writeLetter(stdin, int(key))
 					} else {
 						writeLetter(stdin, int(char))
@@ -207,15 +204,19 @@ var child = &cli.Command{
 		})()
 
 		if argt.Mouse {
-			lx, ly := robotgo.GetMousePos()
+			mouseInit()
+			startMouseListener(func(a, b int) {
+				remoteMouseButton(stdin, a, b)
+			})
+			lx, ly := getMousePos()
 			go (func() {
 				for {
-					nx, ny := robotgo.GetMousePos()
+					nx, ny := getMousePos()
 					dx := lx - nx
 					dy := ly - ny
 					if nx != lx && ny != ly {
 						if e.enabled {
-							robotgo.MoveMouse(lx, ly)
+							setMousePos(lx, ly)
 							moveRemoteMouse(stdin, dx*-1, dy*-1)
 						}
 					}
@@ -225,18 +226,17 @@ var child = &cli.Command{
 		}
 
 		for {
-			if argt.Mouse {
-				lmb := robotgo.AddEvent("mleft")
-				if lmb {
-					remoteMouseButton(stdin, 1)
-				}
-			}
+
 		}
 	},
 }
 
-func remoteMouseButton(stdin io.WriteCloser, button int) {
-	cmd := "xdotool click " + strconv.Itoa(button) + "\n"
+func remoteMouseButton(stdin io.WriteCloser, button, state int) {
+	sstate := "mouseup"
+	if state == 1 {
+		sstate = "mousedown"
+	}
+	cmd := "xdotool " + sstate + " " + strconv.Itoa(button) + "\n"
 	stdin.Write([]byte(cmd))
 }
 
