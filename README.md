@@ -6,7 +6,7 @@ It uses x11lib and [eiannone/keyboard](https://github.com/eiannone/keyboard) as 
 You need to install go and libx11-dev + libx11-6.
 You can install it with
 ```
-apt install -y libx11-dev libx11-6
+apt install -y libx11-dev
 ```
 
 (It was developed using go1.13 so if you have trouble building it, try to use go1.13)
