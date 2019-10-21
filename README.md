@@ -34,7 +34,7 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
 - SSH
   - [x] SSH password auth
   - [X] Privatekey auth (only without passphrase)
-  - [x] SSHAgent login
+  - [x] SSHAgent auth
   - [ ] Knownhost check/handling
 - Keyboard
   - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
