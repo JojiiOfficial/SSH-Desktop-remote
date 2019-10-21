@@ -339,6 +339,30 @@ func convertToCommandCode(keycode int) string {
 		return "Up"
 	case 65522:
 		return "Delete"
+	case 65535:
+		return "F1"
+	case 65534:
+		return "F2"
+	case 65533:
+		return "F3"
+	case 65532:
+		return "F4"
+	case 65531:
+		return "F5"
+	case 65530:
+		return "F6"
+	case 65529:
+		return "F7"
+	case 65528:
+		return "F8"
+	case 65527:
+		return "F9"
+	case 65526:
+		return "F10"
+	case 65525:
+		return "F11"
+	case 65524:
+		return "F12"
 	}
 	return string(keycode)
 }
