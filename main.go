@@ -213,7 +213,6 @@ var child = &cli.Command{
 					dx := lx - nx
 					dy := ly - ny
 					if nx != lx && ny != ly {
-						fmt.Println("nice")
 						if e.enabled {
 							robotgo.MoveMouse(lx, ly)
 							moveRemoteMouse(stdin, dx*-1, dy*-1)
