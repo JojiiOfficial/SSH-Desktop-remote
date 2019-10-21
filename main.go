@@ -205,24 +205,25 @@ var child = &cli.Command{
 
 		if argt.Mouse {
 			mouseInit()
-			startMouseListener(func(a, b int) {
-				remoteMouseButton(stdin, a, b)
-			})
+			var nx, ny int
 			lx, ly := getMousePos()
-			go (func() {
-				for {
-					nx, ny := getMousePos()
+
+			startMouseListener(func(a, b, c int) {
+				if a > 0 {
+					remoteMouseButton(stdin, a, b)
+				} else {
+					nx, ny = b, c
 					dx := lx - nx
 					dy := ly - ny
 					if nx != lx && ny != ly {
 						if e.enabled {
 							setMousePos(lx, ly)
 							moveRemoteMouse(stdin, dx*-1, dy*-1)
+							time.Sleep(4 * time.Millisecond)
 						}
 					}
-					time.Sleep(2 * time.Millisecond)
 				}
-			})()
+			})
 		}
 
 		for {

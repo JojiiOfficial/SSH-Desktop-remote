@@ -5,7 +5,7 @@ package main
 #include <stdio.h>
 #include <X11/Xlib.h>
 
-extern void onMouseEvent(int, int);
+extern void onMouseEvent(int, int, int);
 
 Window root_window;
 unsigned int mask;
@@ -32,10 +32,16 @@ static void startMouseEventListener(){
     while(True) {
 		XNextEvent(display, &evt);
 		if (evt.type == ButtonPress) {
-			onMouseEvent(evt.xbutton.button, 1);
+			onMouseEvent(evt.xbutton.button, 1, 0);
+			continue;
 		}
 		if (evt.type == ButtonRelease) {
-			onMouseEvent(evt.xbutton.button, 0);
+			onMouseEvent(evt.xbutton.button, 0, 0);
+			continue;
+		}
+		if (evt.type == MotionNotify) {
+			onMouseEvent(-1, evt.xmotion.x_root, evt.xmotion.y_root);
+			continue;
 		}
     }
 }
@@ -70,20 +76,20 @@ import (
 	"unsafe"
 )
 
-var callback func(int, int)
+var callback func(int, int, int)
 
 //export onMouseEvent
-func onMouseEvent(a, b C.int) {
+func onMouseEvent(a, b, c C.int) {
 	button := (int)(a)
 	state := (int)(b)
-	callback(button, state)
+	callback(button, state, (int)(c))
 }
 
 func mouseInit() {
 	C.init()
 }
 
-func startMouseListener(call func(int, int)) {
+func startMouseListener(call func(int, int, int)) {
 	callback = call
 	go C.startMouseEventListener()
 }
