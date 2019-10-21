@@ -38,8 +38,8 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
   - [ ] Knownhost check/handling
 - Keyboard
   - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
+  - [ ] Function keys (F1-F12)
   - [ ] Key combinations (eg. Crtl+a)
 - Mouse
   - [x] Mouse movement
-  - [x] Simple mouse leftclick
-  - [ ] Full mousebutton support (left- ,rightmousebutton, scrolling, ect)
+  - [x] Full mousebutton support (left- ,rightmousebutton, scrolling, ect)
