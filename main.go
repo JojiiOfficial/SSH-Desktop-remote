@@ -29,7 +29,7 @@ type argT struct {
 	Mouse       bool   `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
 	Quiet       bool   `cli:"q,quiet" usage:"No output" dft:"false"`
 	MouseToggle bool   `cli:"t,mtggle" usage:"Toggle mouse mirroring with \u0060" dft:"true"`
-	Sensitivity int64  `cli:"s,sensitivity" usage:"Send more mouse motions. May cause lags. Lower=more sensitive" dft:"10000000"`
+	Sensitivity int64  `cli:"s,sensitivity" usage:"Send more mouse motions. May cause lags. Lower=more sensitive" dft:"7900000"`
 }
 
 //Enabled a struct
@@ -227,8 +227,7 @@ var child = &cli.Command{
 					if (nx != lx || ny != ly) && e.enabled && (lc+argt.Sensitivity <= time.Now().UnixNano()) {
 						fmt.Println("X:", dx, "Y:", dy)
 						setMousePos(lx, ly)
-						go moveRemoteMouse(stdin, dx*-1, dy*-1)
-						//time.Sleep(4 * time.Millisecond)
+						moveRemoteMouse(stdin, dx*-1, dy*-1)
 						lc = time.Now().UnixNano()
 					}
 				}
