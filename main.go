@@ -224,9 +224,11 @@ var child = &cli.Command{
 		}
 
 		for {
-			lmb := robotgo.AddEvent("mleft")
-			if lmb {
-				remoteMouseButton(stdin, 1)
+			if argt.Mouse {
+				lmb := robotgo.AddEvent("mleft")
+				if lmb {
+					remoteMouseButton(stdin, 1)
+				}
 			}
 		}
 	},
