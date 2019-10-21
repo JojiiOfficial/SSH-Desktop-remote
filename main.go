@@ -180,9 +180,9 @@ var child = &cli.Command{
 		}
 		stdin.Write([]byte("export DISPLAY=:0\n"))
 		fmt.Println("\nSuccessfully connected")
-		fmt.Println("Available:\n  Keyboard")
+		fmt.Println("Available:\n - Keyboard")
 		if argt.Mouse {
-			fmt.Println("  Mouse")
+			fmt.Println(" - Mouse")
 		}
 
 		e = &Enabled{enabled: true}
@@ -212,13 +212,14 @@ var child = &cli.Command{
 					nx, ny := robotgo.GetMousePos()
 					dx := lx - nx
 					dy := ly - ny
-					if dy != 0 && dx != 0 {
+					if nx != lx && ny != ly {
+						fmt.Println("nice")
 						if e.enabled {
+							robotgo.MoveMouse(lx, ly)
 							moveRemoteMouse(stdin, dx*-1, dy*-1)
 						}
 					}
-					lx, ly = nx, ny
-					time.Sleep(5 * time.Millisecond)
+					time.Sleep(2 * time.Millisecond)
 				}
 			})()
 		}
