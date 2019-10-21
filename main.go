@@ -198,9 +198,9 @@ var child = &cli.Command{
 						os.Exit(0)
 					}
 					if key != 0 {
-						writeLetter(stdin, int(key))
+						writeLetter(stdin, argt.MouseToggle, int(key))
 					} else {
-						writeLetter(stdin, int(char))
+						writeLetter(stdin, argt.MouseToggle, int(char))
 					}
 				} else {
 					panic(err)
@@ -222,12 +222,10 @@ var child = &cli.Command{
 					nx, ny = b, c
 					dx := lx - nx
 					dy := ly - ny
-					if nx != lx && ny != ly {
-						if e.enabled {
-							setMousePos(lx, ly)
-							moveRemoteMouse(stdin, dx*-1, dy*-1)
-							time.Sleep(4 * time.Millisecond)
-						}
+					if nx != lx && ny != ly && e.enabled {
+						setMousePos(lx, ly)
+						moveRemoteMouse(stdin, dx*-1, dy*-1)
+						time.Sleep(4 * time.Millisecond)
 					}
 				}
 			})
@@ -253,8 +251,8 @@ func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
 	stdin.Write([]byte(cmd))
 }
 
-func writeLetter(stdin io.WriteCloser, letter int) {
-	if letter == 96 {
+func writeLetter(stdin io.WriteCloser, mouseToggle bool, letter int) {
+	if letter == 96 && mouseToggle {
 		e.enabled = !e.enabled
 		return
 	}
