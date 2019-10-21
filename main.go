@@ -27,6 +27,7 @@ type argT struct {
 	Port    int    `cli:"p,port" usage:"SSH remote port"`
 	KeyFile string `cli:"i,identity" usage:"SSH identity file"`
 	Mouse   bool   `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
+	Quiet   bool   `cli:"q,quiet" usage:"No output" dft:"false"`
 }
 
 //Enabled a struct
@@ -152,6 +153,7 @@ var child = &cli.Command{
 				i++
 				continue
 			} else {
+				fmt.Println("")
 				break
 			}
 		}
@@ -177,10 +179,12 @@ var child = &cli.Command{
 			fmt.Errorf("Unable to setup stdout for session: %v", err)
 		}
 		stdin.Write([]byte("export DISPLAY=:0\n"))
-		fmt.Println("\nSuccessfully connected")
-		fmt.Println("Available:\n - Keyboard")
-		if argt.Mouse {
-			fmt.Println(" - Mouse")
+		if !argt.Quiet {
+			fmt.Println("Successfully connected")
+			fmt.Println("Available:\n - Keyboard")
+			if argt.Mouse {
+				fmt.Println(" - Mouse")
+			}
 		}
 
 		e = &Enabled{enabled: true}
