@@ -41,6 +41,7 @@ type Enabled struct {
 var e *Enabled
 var stdin io.WriteCloser
 var help = cli.HelpCommand("display help information")
+var sensitivity int64
 
 func main() {
 	if err := cli.Root(child,
@@ -66,6 +67,7 @@ var child = &cli.Command{
 		argt := argv.(*argT)
 		usern := argt.User
 		host := argt.Host
+		sensitivity = argt.Sensitivity
 
 		if len(usern) == 0 && !strings.Contains(host, "@") {
 			user, err := user.Current()
@@ -211,32 +213,38 @@ var child = &cli.Command{
 
 		if argt.Mouse {
 			mouseInit()
-			var nx, ny int
-			lx, ly := getMousePos()
-			lc := time.Now().UnixNano()
-
-			startMouseListener(func(a, b, c int) {
-				if a > 0 {
-					if e.enabled {
-						remoteMouseButton(stdin, a, b)
-					}
-				} else {
-					nx, ny = b, c
-					dx := lx - nx
-					dy := ly - ny
-					if (nx != lx || ny != ly) && e.enabled && (lc+argt.Sensitivity <= time.Now().UnixNano()) {
-						setMousePos(lx, ly)
-						moveRemoteMouse(stdin, dx*-1, dy*-1)
-						lc = time.Now().UnixNano()
-					}
-				}
-			})
+			inMouse()
 		}
 
 		for {
 
 		}
 	},
+}
+
+func inMouse() {
+	var nx, ny int
+	getMousePos()
+	lx, ly := 100, 100
+	setMousePos(lx, ly)
+	lc := time.Now().UnixNano()
+	startMouseListener(func(a, b, c int) {
+		if !e.enabled {
+			return
+		}
+		if a > 0 {
+			remoteMouseButton(stdin, a, b)
+		} else {
+			nx, ny = b, c
+			dx := lx - nx
+			dy := ly - ny
+			if (nx != lx || ny != ly) && (lc+sensitivity <= time.Now().UnixNano()) {
+				setMousePos(lx, ly)
+				moveRemoteMouse(stdin, dx*-1, dy*-1)
+				lc = time.Now().UnixNano()
+			}
+		}
+	})
 }
 
 func remoteMouseButton(stdin io.WriteCloser, button, state int) {
@@ -256,6 +264,11 @@ func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
 func writeLetter(stdin io.WriteCloser, mouseToggle bool, letter int) {
 	if letter == 96 && mouseToggle {
 		e.enabled = !e.enabled
+		if e.enabled {
+			inMouse()
+		} else {
+			releaseMouse()
+		}
 		return
 	}
 	stdin.Write([]byte("xdotool key " + convertToCommandCode(letter) + "\n"))

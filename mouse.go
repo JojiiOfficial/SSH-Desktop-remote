@@ -10,26 +10,22 @@ extern void onMouseEvent(int, int, int);
 Window root_window;
 unsigned int mask;
 Display *display;
-XEvent xevent;
-
+Bool running;
+XEvent evt;
 static void init() {
 	display = XOpenDisplay(NULL);
 }
 
 static void startMouseEventListener(){
-	Display *display = XOpenDisplay(NULL);
-    Window window;
-    XEvent evt;
 
     if(display == NULL){
 		return;
 	}
 
     XAllowEvents(display, AsyncBoth, CurrentTime);
-    window = DefaultRootWindow(display);
-	XGrabPointer(display, root_window, 1, PointerMotionMask | ButtonReleaseMask | ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-
-    while(True) {
+	XGrabPointer(display, root_window, 0, PointerMotionMask | ButtonReleaseMask | ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	running = True;
+    while(running) {
 		XNextEvent(display, &evt);
 		if (evt.type == ButtonPress) {
 			onMouseEvent(evt.xbutton.button, 1, 0);
@@ -43,7 +39,13 @@ static void startMouseEventListener(){
 			onMouseEvent(-1, evt.xmotion.x_root, evt.xmotion.y_root);
 			continue;
 		}
-    }
+	}
+	XUngrabPointer(display, CurrentTime);
+	XFlush(display);
+}
+
+static void releaseMouse() {
+	running = False;
 }
 
 static int* getMouse () {
@@ -92,6 +94,10 @@ func mouseInit() {
 func startMouseListener(call func(int, int, int)) {
 	callback = call
 	go C.startMouseEventListener()
+}
+
+func releaseMouse() {
+	C.releaseMouse()
 }
 
 func setMousePos(x, y int) {
