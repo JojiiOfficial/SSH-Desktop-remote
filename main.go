@@ -226,9 +226,7 @@ func inKeyboard() {
 func inMouse() {
 	go hideMouse()
 	var nx, ny int
-	getMousePos()
-	lx, ly := 100, 100
-	setMousePos(lx, ly)
+	lx, ly := getMousePos()
 	lc := time.Now().UnixNano()
 	startMouseListener(func(a, b, c int) {
 		if !e.enabled {
