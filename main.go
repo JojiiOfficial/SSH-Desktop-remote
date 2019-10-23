@@ -214,7 +214,6 @@ func inKeyboard() {
 			os.Exit(0)
 			return
 		}
-		fmt.Println(key)
 		pressRemoteKey(stdin, mouseToggle, key, pressed)
 	})
 }
@@ -279,7 +278,6 @@ func pressRemoteKey(stdin io.WriteCloser, mouseToggle bool, key string, pressed 
 	cmd := "keydown"
 	if !pressed {
 		cmd = "keyup"
-		fmt.Println(cmd)
 	}
 	stdin.Write([]byte("xdotool " + cmd + " " + key + "\n"))
 }
