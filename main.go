@@ -224,10 +224,24 @@ func inKeyboard() {
 }
 
 func inMouse() {
-	hideMouse()
+	go hideMouse()
 	var nx, ny int
 	lx, ly := getMousePos()
-
+	screenX, screenY := getDisplaySize()
+	minCornerDistance := 200
+	if lx < minCornerDistance {
+		lx = minCornerDistance
+	}
+	if lx >= screenX-minCornerDistance {
+		lx = screenX - minCornerDistance
+	}
+	if ly < minCornerDistance {
+		ly = minCornerDistance
+	}
+	if ly >= screenY-minCornerDistance {
+		ly = screenY - minCornerDistance
+	}
+	setMousePos(lx, ly)
 	lc := time.Now().UnixNano()
 	startMouseListener(func(a, b, c int) {
 		if !e.enabled {

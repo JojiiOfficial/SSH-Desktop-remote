@@ -105,8 +105,8 @@ func setMousePos(x, y int) {
 }
 
 func getMousePos() (int, int) {
-	var theCArray *C.int = C.getMouse()
+	var mousePos *C.int = C.getMouse()
 	length := 2
-	slice := (*[1 << 28]C.int)(unsafe.Pointer(theCArray))[:length:length]
+	slice := (*[1 << 28]C.int)(unsafe.Pointer(mousePos))[:length:length]
 	return (int)(slice[0]), (int)(slice[1])
 }

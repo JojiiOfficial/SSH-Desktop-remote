@@ -1,9 +1,9 @@
 # SSH-Desktop-remote
 This is a small but effective tool to control the keyboard and mouse of a linux desktop environment via SSH.
-It uses x11lib and [eiannone/keyboard](https://github.com/eiannone/keyboard) as client libraries for the input, translates this into xdotool commands and executes them on a remote machine. This allows you to 'mirror' your mouse and keyboard input.
+It uses x11lib as library for the input, translates this into xdotool commands and executes them on a remote machine. This allows you to move your mouse and keyboard input to an other machine.
 
 # Installation/Requirements
-You need to install go and libx11-dev + libx11-6.
+You need to install go and libx11-dev.
 You can install it with
 ```
 apt install -y libx11-dev
