@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"os/exec"
 	"os/user"
 	"strconv"
 	"strings"
@@ -30,6 +31,7 @@ type argT struct {
 	Quiet       bool   `cli:"q,quiet" usage:"No output" dft:"false"`
 	MouseToggle bool   `cli:"t,mtggle" usage:"Switch between devices with \u0060-key" dft:"true"`
 	Sensitivity int64  `cli:"s,sensitivity" usage:"Send more mouse motions. May cause lags. Lower=more sensitive" dft:"7900000"`
+	ShowMouse   bool   `cli:"e,showmouse" usage:"Don't hide mouse even if unclutter is installed" dft:"false"`
 }
 
 //Enabled a struct
@@ -42,7 +44,7 @@ var e *Enabled
 var stdin io.WriteCloser
 var help = cli.HelpCommand("display help information")
 var sensitivity int64
-var mouseToggle, quiet bool
+var mouseToggle, quiet, showmouse bool
 
 func main() {
 	if err := cli.Root(child,
@@ -71,6 +73,7 @@ var child = &cli.Command{
 		sensitivity = argt.Sensitivity
 		mouseToggle = argt.MouseToggle
 		quiet = argt.Quiet
+		showmouse = argt.ShowMouse
 
 		if len(usern) == 0 && !strings.Contains(host, "@") {
 			user, err := user.Current()
@@ -212,6 +215,7 @@ var child = &cli.Command{
 func inKeyboard() {
 	startKeyboardListen(func(key string, pressed bool) {
 		if key == "Control_R" {
+			showMouse()
 			os.Exit(0)
 			return
 		}
@@ -220,6 +224,7 @@ func inKeyboard() {
 }
 
 func inMouse() {
+	go hideMouse()
 	var nx, ny int
 	getMousePos()
 	lx, ly := 100, 100
@@ -244,6 +249,21 @@ func inMouse() {
 	})
 }
 
+var unclutterCMD *exec.Cmd
+
+func hideMouse() {
+	if !showmouse {
+		unclutterCMD = exec.Command("/usr/bin/unclutter", "-idle", "0")
+		unclutterCMD.Run()
+	}
+}
+
+func showMouse() {
+	if unclutterCMD != nil && unclutterCMD.Process != nil && !showmouse {
+		unclutterCMD.Process.Kill()
+	}
+}
+
 func remoteMouseButton(stdin io.WriteCloser, button, state int) {
 	sstate := "mouseup"
 	if state == 1 {
@@ -262,6 +282,7 @@ func pressRemoteKey(stdin io.WriteCloser, mouseToggle bool, key string, pressed 
 	if key == "grave" && mouseToggle {
 		e.enabled = false
 		releaseMouse()
+		showMouse()
 		releaseKeyboard()
 		if !quiet {
 			fmt.Println("Input detached")

@@ -30,6 +30,7 @@ apt install xdotool -y
 If the port is not 22 you can add ':port' to the hostname-argument <br>
 If you press the '\`' key you can choose to which machine the input should be send (use the host or remote machine). By activating the remotemachine again you have to press <code>return</code> additionally! You can turn off this switch-feature by adding the <code>-t=false</code> argument in case you need the grave key or don't want to switch.
 <br><b>Note: </b>To exit this program you need to press the right control key. ('Strg' or 'Control' at the right side of the spacebar)  
+If unclutter is installed, the mouse will automatically disappear if it controls the remote machine. You can turn this off with -e
 
 # Features
 - SSH
