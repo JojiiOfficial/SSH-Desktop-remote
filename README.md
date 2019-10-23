@@ -27,8 +27,9 @@ apt install xdotool -y
 ./remoteSSH -r user@host -m                 # opens mouse and keyboard remote
 ./remoteSSH -r user@host -m -i key -p 123   # opens remote with ssh privatekey auth on port 123
 ```
-By default the mouse option is turned off. If mouse is turned on, you can toggle it afterwards with the '\`' key.
-<br>If the port is not 22 you can add ':port' to the hostname-argument
+If the port is not 22 you can add ':port' to the hostname-argument <br>
+If you press the '\`' key you can choose to which machine the input should be send (use the host or remote machine). By activating the remotemachine again you have to press <code>return</code> additionally! You can turn off this switch-feature by adding the <code>-t=false</code> argument in case you need the grave key or don't want to switch.
+<br><b>Note: </b>To exit this program you need to press the right control key. ('Strg' or 'Control' at the right side of the spacebar)  
 
 # Features
 - SSH
@@ -37,9 +38,6 @@ By default the mouse option is turned off. If mouse is turned on, you can toggle
   - [x] SSHAgent auth
   - [ ] Knownhost check/handling
 - Keyboard
-  - [x] Keyboard ASCII keyboard support (a-Z,0-9,!@#$%^&*(){}[]+=|\/?_-)
-  - [x] Function keys (F1-F12)
-  - [ ] Key combinations (eg. Crtl+a)
+  - [x] Full keyboard support!
 - Mouse
-  - [x] Mouse movement
-  - [x] Full mousebutton support (left- ,rightmousebutton, scrolling, ect)
+  - [x] Full mouse support!

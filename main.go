@@ -28,7 +28,7 @@ type argT struct {
 	KeyFile     string `cli:"i,identity" usage:"SSH identity file"`
 	Mouse       bool   `cli:"m,mouse" usage:"boolean mirror mouse" dft:"false"`
 	Quiet       bool   `cli:"q,quiet" usage:"No output" dft:"false"`
-	MouseToggle bool   `cli:"t,mtggle" usage:"Toggle mouse mirroring with \u0060" dft:"true"`
+	MouseToggle bool   `cli:"t,mtggle" usage:"Switch between devices with \u0060-key" dft:"true"`
 	Sensitivity int64  `cli:"s,sensitivity" usage:"Send more mouse motions. May cause lags. Lower=more sensitive" dft:"7900000"`
 }
 
@@ -42,7 +42,7 @@ var e *Enabled
 var stdin io.WriteCloser
 var help = cli.HelpCommand("display help information")
 var sensitivity int64
-var mouseToggle bool
+var mouseToggle, quiet bool
 
 func main() {
 	if err := cli.Root(child,
@@ -70,6 +70,7 @@ var child = &cli.Command{
 		host := argt.Host
 		sensitivity = argt.Sensitivity
 		mouseToggle = argt.MouseToggle
+		quiet = argt.Quiet
 
 		if len(usern) == 0 && !strings.Contains(host, "@") {
 			user, err := user.Current()
@@ -262,12 +263,18 @@ func pressRemoteKey(stdin io.WriteCloser, mouseToggle bool, key string, pressed 
 		e.enabled = false
 		releaseMouse()
 		releaseKeyboard()
+		if !quiet {
+			fmt.Println("Input detached")
+		}
 		go (func() {
 			for {
 				reader := bufio.NewReader(os.Stdin)
 				input, _ := reader.ReadString('`')
 				if input == "`" {
 					e.enabled = true
+					if !quiet {
+						fmt.Println("Input attached")
+					}
 					inMouse()
 					inKeyboard()
 				}
