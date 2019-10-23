@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -13,7 +14,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/eiannone/keyboard"
 	"github.com/mkideal/cli"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -42,6 +42,7 @@ var e *Enabled
 var stdin io.WriteCloser
 var help = cli.HelpCommand("display help information")
 var sensitivity int64
+var mouseToggle bool
 
 func main() {
 	if err := cli.Root(child,
@@ -68,6 +69,7 @@ var child = &cli.Command{
 		usern := argt.User
 		host := argt.Host
 		sensitivity = argt.Sensitivity
+		mouseToggle = argt.MouseToggle
 
 		if len(usern) == 0 && !strings.Contains(host, "@") {
 			user, err := user.Current()
@@ -193,23 +195,7 @@ var child = &cli.Command{
 
 		e = &Enabled{enabled: true}
 
-		go (func() {
-			for {
-				char, key, err := keyboard.GetSingleKey()
-				if err == nil {
-					if key == 3 {
-						os.Exit(0)
-					}
-					if key != 0 {
-						writeLetter(stdin, argt.MouseToggle, int(key))
-					} else {
-						writeLetter(stdin, argt.MouseToggle, int(char))
-					}
-				} else {
-					panic(err)
-				}
-			}
-		})()
+		inKeyboard()
 
 		if argt.Mouse {
 			mouseInit()
@@ -220,6 +206,17 @@ var child = &cli.Command{
 
 		}
 	},
+}
+
+func inKeyboard() {
+	startKeyboardListen(func(key string, pressed bool) {
+		if key == "Control_R" {
+			os.Exit(0)
+			return
+		}
+		fmt.Println(key)
+		pressRemoteKey(stdin, mouseToggle, key, pressed)
+	})
 }
 
 func inMouse() {
@@ -261,123 +258,28 @@ func moveRemoteMouse(stdin io.WriteCloser, dx, dy int) {
 	stdin.Write([]byte(cmd))
 }
 
-func writeLetter(stdin io.WriteCloser, mouseToggle bool, letter int) {
-	if letter == 96 && mouseToggle {
-		e.enabled = !e.enabled
-		if e.enabled {
-			inMouse()
-		} else {
-			releaseMouse()
-		}
+func pressRemoteKey(stdin io.WriteCloser, mouseToggle bool, key string, pressed bool) {
+	if key == "grave" && mouseToggle {
+		e.enabled = false
+		releaseMouse()
+		releaseKeyboard()
+		go (func() {
+			for {
+				reader := bufio.NewReader(os.Stdin)
+				input, _ := reader.ReadString('`')
+				if input == "`" {
+					e.enabled = true
+					inMouse()
+					inKeyboard()
+				}
+			}
+		})()
 		return
 	}
-	stdin.Write([]byte("xdotool key " + convertToCommandCode(letter) + "\n"))
-}
-
-func convertToCommandCode(keycode int) string {
-	switch keycode {
-	case 8:
-		return "Control_L+BackSpace"
-	case 9:
-		return "Tab"
-	case 13:
-		return "Return"
-	case 32:
-		return "space"
-	case 33:
-		return "exclam"
-	case 34:
-		return "quotedbl"
-	case 35:
-		return "numbersign"
-	case 36:
-		return "dollar"
-	case 37:
-		return "percent"
-	case 38:
-		return "ampersand"
-	case 39:
-		return "apostrophe"
-	case 40:
-		return "parenleft"
-	case 41:
-		return "parenright"
-	case 42:
-		return "asterisk"
-	case 43:
-		return "plus"
-	case 44:
-		return "comma"
-	case 45:
-		return "minus"
-	case 46:
-		return "period"
-	case 47:
-		return "slash"
-	case 58:
-		return "colon"
-	case 59:
-		return "semicolon"
-	case 61:
-		return "equal"
-	case 63:
-		return "question"
-	case 64:
-		return "at"
-	case 94:
-		return "asciicircum"
-	case 91:
-		return "bracketleft"
-	case 92:
-		return "backslash"
-	case 93:
-		return "bracketright"
-	case 95:
-		return "underscore"
-	case 96:
-		return "grave"
-	case 123:
-		return "braceleft"
-	case 124:
-		return "bar"
-	case 125:
-		return "braceright"
-	case 127:
-		return "BackSpace"
-	case 65514:
-		return "Right"
-	case 65515:
-		return "Left"
-	case 65516:
-		return "Down"
-	case 65517:
-		return "Up"
-	case 65522:
-		return "Delete"
-	case 65535:
-		return "F1"
-	case 65534:
-		return "F2"
-	case 65533:
-		return "F3"
-	case 65532:
-		return "F4"
-	case 65531:
-		return "F5"
-	case 65530:
-		return "F6"
-	case 65529:
-		return "F7"
-	case 65528:
-		return "F8"
-	case 65527:
-		return "F9"
-	case 65526:
-		return "F10"
-	case 65525:
-		return "F11"
-	case 65524:
-		return "F12"
+	cmd := "keydown"
+	if !pressed {
+		cmd = "keyup"
+		fmt.Println(cmd)
 	}
-	return string(keycode)
+	stdin.Write([]byte("xdotool " + cmd + " " + key + "\n"))
 }
