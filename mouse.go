@@ -72,7 +72,6 @@ static void setMousePos(int x, int y) {
 	XWarpPointer(display, None, root_window, 0, 0, 0, 0, x, y);
 	XFlush(display);
 }
-
 */
 import "C"
 import (
